@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard — Externship Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <p class="page-eyebrow">Student portal</p>
+    <h1 class="page-title">Hi, {{ user.first_name|default:user.username }}</h1>
+    <p class="page-sub">
+      {% if rm %}
+        Your RM: <strong>{{ rm.display_name }}</strong>
+        {% if rm.email %} · {{ rm.email }}{% endif %}
+      {% else %}
+        No RM assigned yet.
+      {% endif %}
+    </p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'communication_create' %}" class="btn-primary">
+      <i class="bi bi-plus-lg"></i> Log communication
+    </a>
+    <a href="{% url 'status_update' %}" class="btn-secondary">Update status</a>
+  </div>
+</div>
+
+<div class="grid-2">
+  <section class="panel panel--accent">
+    <header class="panel__header">
+      <h2>Externship status</h2>
+      <span class="status-badge status-badge--{{ status.status }}">{{ status.get_status_display }}</span>
+    </header>
+    <div class="panel__body">
+      {% if status.site_name %}
+        <dl class="meta-list">
+          <div><dt>Site</dt><dd>{{ status.site_name }}</dd></div>
+          {% if status.site_location %}<div><dt>Location</dt><dd>{{ status.site_location }}</dd></div>{% endif %}
+          {% if status.offer_date %}<div><dt>Offer date</dt><dd>{{ status.offer_date|date:"M j, Y" }}</dd></div>{% endif %}
+          {% if status.start_date %}<div><dt>Start date</dt><dd>{{ status.start_date|date:"M j, Y" }}</dd></div>{% endif %}
+        </dl>
+      {% else %}
+        <p class="muted">No site details yet. Update your status when you receive an offer.</p>
+      {% endif %}
+      {% if status.notes %}
+        <p class="notes-block">{{ status.notes }}</p>
+      {% endif %}
+      <p class="meta-foot">Last updated {{ status.updated_at|timesince }} ago</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <header class="panel__header">
+      <h2>At a glance</h2>
+    </header>
+    <div class="panel__body stats-row">
+      <div class="stat">
+        <span class="stat__value">{{ communications|length }}</span>
+        <span class="stat__label">Recent logs</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">{{ follow_ups }}</span>
+        <span class="stat__label">Follow-ups</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">{% if status.is_offer_related %}Yes{% else %}—{% endif %}</span>
+        <span class="stat__label">Offer stage</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="panel mt-4">
+  <header class="panel__header">
+    <h2>Communications</h2>
+    <span class="muted">Visible to you and your RM</span>
+  </header>
+  <div class="panel__body p-0">
+    {% if communications %}
+      <ul class="comm-list">
+        {% for c in communications %}
+          <li class="comm-item">
+            <a href="{% url 'communication_detail' c.pk %}" class="comm-item__link">
+              <div class="comm-item__type">
+                <span class="type-chip type-chip--{{ c.comm_type }}">{{ c.get_comm_type_display }}</span>
+                {% if c.authored_by_student %}
+                  <span class="author-chip author-chip--you">You</span>
+                {% else %}
+                  <span class="author-chip author-chip--rm">RM</span>
+                {% endif %}
+              </div>
+              <div class="comm-item__main">
+                <strong>{{ c.subject }}</strong>
+                <span class="muted">{{ c.site_name }}{% if c.contact_name %} · {{ c.contact_name }}{% endif %}</span>
+              </div>
+              <div class="comm-item__meta">
+                <time>{{ c.occurred_at|date:"M j, Y g:i A" }}</time>
+                {% if c.follow_up_needed %}<span class="flag-followup">Follow-up</span>{% endif %}
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state">
+        <i class="bi bi-chat-left-text"></i>
+        <p>No communications yet. Log a call, interview, or email from a site.</p>
+        <a href="{% url 'communication_create' %}" class="btn-primary">Log your first entry</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

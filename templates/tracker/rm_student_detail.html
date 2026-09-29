@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.display_name }} — RM{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <p class="page-eyebrow"><a href="{% url 'rm_dashboard' %}">← Back to roster</a></p>
+    <h1 class="page-title">{{ student.display_name }}</h1>
+    <p class="page-sub">
+      {{ student.program|default:"Program TBD" }}
+      {% if student.cohort %} · {{ student.cohort }}{% endif %}
+      {% if student.email %} · {{ student.email }}{% endif %}
+      {% if student.phone %} · {{ student.phone }}{% endif %}
+    </p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'rm_communication_create' student.pk %}" class="btn-primary">
+      <i class="bi bi-plus-lg"></i> Add note for student
+    </a>
+  </div>
+</div>
+
+<section class="panel panel--accent mb-4">
+  <header class="panel__header">
+    <h2>Externship status</h2>
+    <span class="status-badge status-badge--{{ status.status }}">{{ status.get_status_display }}</span>
+  </header>
+  <div class="panel__body">
+    <dl class="meta-list">
+      <div><dt>Site</dt><dd>{{ status.site_name|default:"—" }}</dd></div>
+      <div><dt>Location</dt><dd>{{ status.site_location|default:"—" }}</dd></div>
+      <div><dt>Offer date</dt><dd>{% if status.offer_date %}{{ status.offer_date|date:"M j, Y" }}{% else %}—{% endif %}</dd></div>
+      <div><dt>Start date</dt><dd>{% if status.start_date %}{{ status.start_date|date:"M j, Y" }}{% else %}—{% endif %}</dd></div>
+    </dl>
+    {% if status.notes %}
+      <p class="notes-block">{{ status.notes }}</p>
+    {% endif %}
+    <p class="meta-foot">Updated {{ status.updated_at|timesince }} ago
+      {% if status.updated_by %} by {{ status.updated_by.display_name }}{% endif %}
+    </p>
+  </div>
+</section>
+
+<section class="panel">
+  <header class="panel__header">
+    <h2>Shared communications</h2>
+    <span class="muted">Student and RM entries</span>
+  </header>
+  <div class="panel__body p-0">
+    {% if communications %}
+      <ul class="comm-list">
+        {% for c in communications %}
+          <li class="comm-item">
+            <a href="{% url 'communication_detail' c.pk %}" class="comm-item__link">
+              <div class="comm-item__type">
+                <span class="type-chip type-chip--{{ c.comm_type }}">{{ c.get_comm_type_display }}</span>
+                {% if c.authored_by_student %}
+                  <span class="author-chip author-chip--you">Student</span>
+                {% else %}
+                  <span class="author-chip author-chip--rm">RM</span>
+                {% endif %}
+              </div>
+              <div class="comm-item__main">
+                <strong>{{ c.subject }}</strong>
+                <span class="muted">{{ c.site_name }}{% if c.contact_name %} · {{ c.contact_name }}{% endif %}</span>
+              </div>
+              <div class="comm-item__meta">
+                <time>{{ c.occurred_at|date:"M j, Y g:i A" }}</time>
+                {% if c.follow_up_needed %}<span class="flag-followup">Follow-up</span>{% endif %}
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state">
+        <p>No communications yet. Add a note the student can see.</p>
+        <a href="{% url 'rm_communication_create' student.pk %}" class="btn-primary">Add note</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

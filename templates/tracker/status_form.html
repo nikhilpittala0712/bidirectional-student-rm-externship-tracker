@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Update status — Externship Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <p class="page-eyebrow"><a href="{% url 'student_dashboard' %}">← Dashboard</a></p>
+    <h1 class="page-title">Update externship status</h1>
+    <p class="page-sub">When you receive an offer, mark it here so your RM sees it immediately.</p>
+  </div>
+</div>
+
+<section class="panel form-panel">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="flash flash--error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-grid">
+      <div class="field field--full">
+        <label for="{{ form.status.id_for_label }}">Current status</label>
+        {{ form.status }}
+        {{ form.status.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.site_name.id_for_label }}">Site name</label>
+        {{ form.site_name }}
+      </div>
+      <div class="field">
+        <label for="{{ form.site_location.id_for_label }}">Location</label>
+        {{ form.site_location }}
+      </div>
+      <div class="field">
+        <label for="{{ form.offer_date.id_for_label }}">Offer date</label>
+        {{ form.offer_date }}
+      </div>
+      <div class="field">
+        <label for="{{ form.start_date.id_for_label }}">Expected start</label>
+        {{ form.start_date }}
+      </div>
+      <div class="field field--full">
+        <label for="{{ form.notes.id_for_label }}">Notes for your RM</label>
+        {{ form.notes }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">Save status</button>
+      <a href="{% url 'student_dashboard' %}" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

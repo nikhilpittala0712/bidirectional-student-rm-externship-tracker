@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Log communication — Externship Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <p class="page-eyebrow">
+      {% if user.is_rm %}
+        <a href="{% url 'rm_student_detail' student.pk %}">← {{ student.display_name }}</a>
+      {% else %}
+        <a href="{% url 'student_dashboard' %}">← Dashboard</a>
+      {% endif %}
+    </p>
+    <h1 class="page-title">Log communication</h1>
+    <p class="page-sub">
+      {% if user.is_rm %}
+        Note for <strong>{{ student.display_name }}</strong> — visible to the student
+      {% else %}
+        Shared with your RM
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<section class="panel form-panel">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="flash flash--error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="{{ form.comm_type.id_for_label }}">Type</label>
+        {{ form.comm_type }}
+        {{ form.comm_type.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.direction.id_for_label }}">Direction</label>
+        {{ form.direction }}
+        {{ form.direction.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.occurred_at.id_for_label }}">When</label>
+        {{ form.occurred_at }}
+        {{ form.occurred_at.errors }}
+      </div>
+      <div class="field field--full">
+        <label for="{{ form.site_name.id_for_label }}">Site name</label>
+        {{ form.site_name }}
+        {{ form.site_name.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.contact_name.id_for_label }}">Contact name</label>
+        {{ form.contact_name }}
+      </div>
+      <div class="field">
+        <label for="{{ form.contact_role.id_for_label }}">Contact role</label>
+        {{ form.contact_role }}
+      </div>
+      <div class="field field--full">
+        <label for="{{ form.subject.id_for_label }}">Subject</label>
+        {{ form.subject }}
+        {{ form.subject.errors }}
+      </div>
+      <div class="field field--full">
+        <label for="{{ form.notes.id_for_label }}">Notes</label>
+        {{ form.notes }}
+        {{ form.notes.errors }}
+      </div>
+      <div class="field field--check">
+        <label class="check-label">
+          {{ form.follow_up_needed }}
+          <span>Follow-up needed</span>
+        </label>
+      </div>
+      <div class="field">
+        <label for="{{ form.follow_up_date.id_for_label }}">Follow-up date</label>
+        {{ form.follow_up_date }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">Save entry</button>
+      <a href="{% if user.is_rm %}{% url 'rm_student_detail' student.pk %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

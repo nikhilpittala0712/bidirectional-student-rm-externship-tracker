@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Sign in — Externship Tracker{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+  <div class="auth-panel">
+    <div class="auth-panel__brand">
+      <span class="top-nav__mark">HR</span>
+      <h1>Externship Tracker</h1>
+      <p>Bidirectional student &amp; RM communication log</p>
+    </div>
+    <form method="post" class="auth-form" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="flash flash--error">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="field">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" class="form-control" autofocus required
+               placeholder="student1 or rm1">
+      </div>
+      <div class="field">
+        <label for="id_password">Password</label>
+        <input type="password" name="password" id="id_password" class="form-control" required
+               placeholder="demo1234">
+      </div>
+      <button type="submit" class="btn-primary btn-block">Sign in</button>
+    </form>
+    <div class="auth-hint">
+      <p><strong>Demo accounts</strong> (password: <code>demo1234</code>)</p>
+      <ul>
+        <li>Student: <code>student1</code>, <code>student2</code></li>
+        <li>RM: <code>rm1</code></li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

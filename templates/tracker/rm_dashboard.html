@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}RM Dashboard — Externship Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <p class="page-eyebrow">Relationship Manager</p>
+    <h1 class="page-title">{{ user.display_name }}'s roster</h1>
+    <p class="page-sub">{{ student_count }} student{{ student_count|pluralize }} assigned</p>
+  </div>
+</div>
+
+{% if offer_alerts %}
+<section class="alert-banner">
+  <div class="alert-banner__icon"><i class="bi bi-award-fill"></i></div>
+  <div>
+    <strong>Offer updates</strong>
+    <ul class="alert-banner__list">
+      {% for s in offer_alerts %}
+        <li>
+          <a href="{% url 'rm_student_detail' s.pk %}">{{ s.display_name }}</a>
+          — {{ s.externship_status.get_status_display }}
+          {% if s.externship_status.site_name %} at {{ s.externship_status.site_name }}{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+<div class="grid-stats mb-4">
+  {% for label, count in status_counts.items %}
+    {% if count %}
+      <div class="mini-stat">
+        <span class="mini-stat__count">{{ count }}</span>
+        <span class="mini-stat__label">{{ label }}</span>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<section class="panel">
+  <header class="panel__header">
+    <h2>Students</h2>
+  </header>
+  <div class="panel__body p-0">
+    {% if students %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Program</th>
+              <th>Status</th>
+              <th>Site</th>
+              <th>Logs</th>
+              <th>Follow-ups</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+              <tr>
+                <td>
+                  <strong>{{ s.display_name }}</strong>
+                  <div class="muted small">{{ s.email }}</div>
+                </td>
+                <td>{{ s.program|default:"—" }}{% if s.cohort %}<div class="muted small">{{ s.cohort }}</div>{% endif %}</td>
+                <td>
+                  {% if s.externship_status %}
+                    <span class="status-badge status-badge--{{ s.externship_status.status }}">
+                      {{ s.externship_status.get_status_display }}
+                    </span>
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td>{{ s.externship_status.site_name|default:"—" }}</td>
+                <td>{{ s.comm_count }}</td>
+                <td>
+                  {% if s.pending_followups %}
+                    <span class="flag-followup">{{ s.pending_followups }}</span>
+                  {% else %}
+                    0
+                  {% endif %}
+                </td>
+                <td><a href="{% url 'rm_student_detail' s.pk %}" class="btn-link">Open</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <p>No students assigned to you yet.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="panel mt-4">
+  <header class="panel__header">
+    <h2>Recent communications</h2>
+    <span class="muted">Across your roster</span>
+  </header>
+  <div class="panel__body p-0">
+    {% if recent_comms %}
+      <ul class="comm-list">
+        {% for c in recent_comms %}
+          <li class="comm-item">
+            <a href="{% url 'communication_detail' c.pk %}" class="comm-item__link">
+              <div class="comm-item__type">
+                <span class="type-chip type-chip--{{ c.comm_type }}">{{ c.get_comm_type_display }}</span>
+                {% if c.authored_by_student %}
+                  <span class="author-chip author-chip--you">Student</span>
+                {% else %}
+                  <span class="author-chip author-chip--rm">RM</span>
+                {% endif %}
+              </div>
+              <div class="comm-item__main">
+                <strong>{{ c.student.display_name }}</strong> — {{ c.subject }}
+                <span class="muted">{{ c.site_name }}</span>
+              </div>
+              <div class="comm-item__meta">
+                <time>{{ c.occurred_at|date:"M j, g:i A" }}</time>
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state"><p>No communications logged yet.</p></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

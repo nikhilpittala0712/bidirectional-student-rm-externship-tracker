@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ comm.subject }} — Externship Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <p class="page-eyebrow">
+      {% if user.is_rm %}
+        <a href="{% url 'rm_student_detail' comm.student_id %}">← {{ comm.student.display_name }}</a>
+      {% else %}
+        <a href="{% url 'student_dashboard' %}">← Dashboard</a>
+      {% endif %}
+    </p>
+    <h1 class="page-title">{{ comm.subject }}</h1>
+    <p class="page-sub">
+      <span class="type-chip type-chip--{{ comm.comm_type }}">{{ comm.get_comm_type_display }}</span>
+      · {{ comm.get_direction_display }}
+      · {{ comm.occurred_at|date:"M j, Y g:i A" }}
+    </p>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel__body">
+    <dl class="meta-list meta-list--wide">
+      <div><dt>Student</dt><dd>{{ comm.student.display_name }}</dd></div>
+      <div><dt>Logged by</dt>
+        <dd>
+          {{ comm.created_by.display_name }}
+          {% if comm.authored_by_student %}
+            <span class="author-chip author-chip--you">Student</span>
+          {% else %}
+            <span class="author-chip author-chip--rm">RM</span>
+          {% endif %}
+        </dd>
+      </div>
+      <div><dt>Site</dt><dd>{{ comm.site_name }}</dd></div>
+      <div><dt>Contact</dt>
+        <dd>
+          {% if comm.contact_name %}
+            {{ comm.contact_name }}{% if comm.contact_role %} ({{ comm.contact_role }}){% endif %}
+          {% else %}—{% endif %}
+        </dd>
+      </div>
+      {% if comm.follow_up_needed %}
+        <div><dt>Follow-up</dt>
+          <dd><span class="flag-followup">Needed</span>
+            {% if comm.follow_up_date %} by {{ comm.follow_up_date|date:"M j, Y" }}{% endif %}
+          </dd>
+        </div>
+      {% endif %}
+    </dl>
+    <div class="notes-block notes-block--lg">
+      <h3>Notes</h3>
+      <p>{{ comm.notes|linebreaksbr }}</p>
+    </div>
+    <p class="meta-foot">Created {{ comm.created_at|date:"M j, Y g:i A" }}</p>
+  </div>
+</section>
+{% endblock %}
